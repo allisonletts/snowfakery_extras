@@ -38,7 +38,7 @@ TOPICS = {
 }
 
 DEPARTMENTS = {
-    'Accounting Division',
+    'Accounting',
     'African American and African Diaspora Studies',
     'Africana Studies',
     'Anesthesiology',
@@ -59,7 +59,7 @@ DEPARTMENTS = {
     'Classics and Ancient Studies',
     'Computer Science',
     'Dance',
-    'Decision, Risk, and Operations Division',
+    'Decision, Risk, and Operations',
     'Dermatology',
     'Digestive and Liver Diseases',
     'Earth and Environmental Sciences',
@@ -73,7 +73,7 @@ DEPARTMENTS = {
     'Environmental Science',
     'Epidemiology',
     'Film',
-    'Finance and Economics Division',
+    'Finance and Economics',
     'French',
     'French and Romance Philology',
     'General Medicine',
@@ -87,8 +87,8 @@ DEPARTMENTS = {
     'Infectious Diseases',
     'Italian',
     'Latin American and Iberian Cultures',
-    'Management Division',
-    'Marketing Division',
+    'Management',
+    'Marketing',
     'Mathematics',
     'Mechanical Engineering',
     'Medicine',
@@ -103,7 +103,6 @@ DEPARTMENTS = {
     'Pharmacology',
     'Philosophy',
     'Philosophy',
-    'Physical Education & Recreation Program',
     'Physical Education',
     'Physics',
     'Physiology and Cellular Biophysics',
@@ -140,10 +139,27 @@ FACULTYPOSITIONS = {
     'TA',
     'Chair',
 }
+
+
+
 class Provider(faker.providers.BaseProvider):
-    def institution_name(self):
+    """The basics of the actual educational institution, so that the details match up"""
+    State = ''
+    LongName = ''
+    EmailDomain = ''
+    PhoneArea = ''
+    PhoneExchange = ''
+
+    def __init__(self):
+        self.State = self.random_element(fakeAddress.states)
+        self.LongName = self.random_element(self.institution_name(self.State))
+        self.PhoneArea = self.phone_areacode()
+        self.PhoneExchange = self.phone_exchange()
+        self.EmailDomain = self.emaildomain()
+
+    def institution_name(self, statename):
         """Fake higher ed names."""
-        topicsinclstate = set(fakeAddress.states)
+        topicsinclstate = set(statename)
         topicsinclstate.union(TOPICS)
         suffix = self.random_element(INSTITUTIONTYPES)
         topic = self.random_element(topicsinclstate)
@@ -186,9 +202,12 @@ class Provider(faker.providers.BaseProvider):
     def phone_lastfour(self):
         return fake.numerify(text='####')
 
-    def phone_number_dialable(self):
-        return ('{0}-{1}-{2}').format(prov1.phone_areacode(),prov1.phone_exchange(),prov1.phone_lastfour())
+    def phone_number_dialable(self, area, exchange):
+        return ('{0}-{1}-{2}').format(self.phone_areacode(),self.phone_exchange(),self.phone_lastfour())
     
+    def phone_number_dialable(self):
+        number = self.phone_number_dialable(self.phone_areacode(),self.phone_exchange())
+        return number
     ### email
 
     def emaildomain(self, InstitutionName):
@@ -204,8 +223,9 @@ class Provider(faker.providers.BaseProvider):
         domain = self.emaildomain(InstitutionName)
         return ('{0}.{1}@{2}.edu').format(FirstName, LastName, domain)
 
+
 """Informal Testing"""      
 prov1 = Provider(Generator())
-print("I am the "+prov1.faculty_title()+" at "+prov1.institution_name())
+print("I am the "+prov1.faculty_title()+" at "+prov1.LongName)
 print(('My phone number is {0}').format(prov1.phone_number_dialable()))
 print(('My email address is {0}').format(prov1.emailaddress(prov1.institution_name(), fakePerson.first_name(), fakePerson.last_name())).lower())
