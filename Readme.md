@@ -1,3 +1,5 @@
+# ARCHIVE NOTICE
+Archived in favor of [faker_highered](https://github.com/allisonletts/faker_highered)
 # Snowfakery Extras
 
 This is a collection of sample code and directions for creating plugins and providers for Snowfakery.
